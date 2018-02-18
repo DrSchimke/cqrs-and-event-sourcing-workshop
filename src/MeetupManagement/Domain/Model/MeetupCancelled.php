@@ -12,13 +12,16 @@ namespace MeetupManagement\Domain\Model;
 
 class MeetupCancelled implements MeetupEvent
 {
-    /**
-     * @var MeetupId
-     */
+    /** @var MeetupId */
     private $meetupId;
 
     public function __construct(MeetupId $meetupId)
     {
         $this->meetupId = $meetupId;
+    }
+
+    public function getMeetupId(): MeetupId
+    {
+        return $this->meetupId;
     }
 }

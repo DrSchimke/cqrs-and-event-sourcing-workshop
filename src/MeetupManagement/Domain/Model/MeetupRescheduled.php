@@ -12,13 +12,10 @@ namespace MeetupManagement\Domain\Model;
 
 class MeetupRescheduled implements MeetupEvent
 {
-    /**
-     * @var MeetupId
-     */
+    /** @var MeetupId */
     private $meetupId;
-    /**
-     * @var ScheduledDate
-     */
+
+    /** @var ScheduledDate */
     private $newDate;
 
     public function __construct(MeetupId $meetupId, ScheduledDate $newDate)
@@ -27,10 +24,12 @@ class MeetupRescheduled implements MeetupEvent
         $this->newDate = $newDate;
     }
 
-    /**
-     * @return ScheduledDate
-     */
-    public function getNewDate()
+    public function getMeetupId(): MeetupId
+    {
+        return $this->meetupId;
+    }
+
+    public function getNewDate(): ScheduledDate
     {
         return $this->newDate;
     }

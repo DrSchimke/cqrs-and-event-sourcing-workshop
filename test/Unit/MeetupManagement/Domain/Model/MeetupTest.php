@@ -24,9 +24,13 @@ class MeetupTest extends \PHPUnit_Framework_TestCase
 
         $meetup = Meetup::schedule($meetupId, $scheduledDate, $title);
 
-        $this->assertEquals($meetupId, $meetup->meetupId());
-        $this->assertEquals($title, $meetup->title());
-        $this->assertEquals($scheduledDate, $meetup->scheduledDate());
+        /** @var MeetupScheduled $event */
+        $event = $meetup->dequeueEvent();
+
+        self::assertInstanceOf(MeetupScheduled::class, $event);
+        self::assertEquals($meetupId, $event->getMeetupId());
+        self::assertEquals($title, $event->getTitle());
+        self::assertEquals($scheduledDate, $event->getScheduledDate());
     }
 
     /**
@@ -43,7 +47,13 @@ class MeetupTest extends \PHPUnit_Framework_TestCase
         $newDate = ScheduledDate::fromString('2016-07-14');
         $meetup->reschedule($newDate);
 
-        $this->assertEquals($newDate, $meetup->scheduledDate());
+        $meetup->dequeueEvent();
+
+        /** @var MeetupRescheduled $event */
+        $event = $meetup->dequeueEvent();
+
+        self::assertInstanceOf(MeetupRescheduled::class, $event);
+        self::assertEquals($newDate, $event->getNewDate());
     }
 
     /**
@@ -56,11 +66,15 @@ class MeetupTest extends \PHPUnit_Framework_TestCase
             ScheduledDate::fromString('2016-06-13'),
             Title::fromString('An evening with CQRS')
         );
-        $this->assertFalse($meetup->hasBeenCancelled());
 
         $meetup->cancel();
 
-        $this->assertTrue($meetup->hasBeenCancelled());
+        $meetup->dequeueEvent();
+
+        /** @var MeetupCancelled $event */
+        $event = $meetup->dequeueEvent();
+
+        self::assertInstanceOf(MeetupCancelled::class, $event);
     }
 
     /**
@@ -124,8 +138,6 @@ class MeetupTest extends \PHPUnit_Framework_TestCase
 
         $meetup = Meetup::reconstitute([$scheduled, $rescheduled, $cancelled]);
 
-        self::assertEquals(Title::fromString('An evening with CQRS'), $meetup->title());
-        self::assertEquals(ScheduledDate::fromString('2016-07-13'), $meetup->scheduledDate());
-        self::assertTrue($meetup->hasBeenCancelled());
+        self::assertInstanceOf(Meetup::class, $meetup);
     }
 }

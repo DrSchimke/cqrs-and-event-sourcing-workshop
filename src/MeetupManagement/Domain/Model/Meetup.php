@@ -59,26 +59,6 @@ final class Meetup
         $this->record(new MeetupCancelled($this->meetupId));
     }
 
-    public function hasBeenCancelled(): bool
-    {
-        return $this->cancelled;
-    }
-
-    public function meetupId(): MeetupId
-    {
-        return $this->meetupId;
-    }
-
-    public function scheduledDate(): ScheduledDate
-    {
-        return $this->scheduledDate;
-    }
-
-    public function title(): Title
-    {
-        return $this->title;
-    }
-
     public function dequeueEvent()
     {
         return array_shift($this->eventList);

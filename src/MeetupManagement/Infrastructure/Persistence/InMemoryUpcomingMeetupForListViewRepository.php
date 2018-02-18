@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace MeetupManagement\Infrastructure\Persistence;
 
 use MeetupManagement\Domain\ReadModel\UpcomingMeetupForListView;
+use MeetupManagement\Domain\ReadModel\UpcomingMeetupForListViewRepository;
 
-final class UpcomingMeetupForListViewRepository
+final class InMemoryUpcomingMeetupForListViewRepository implements UpcomingMeetupForListViewRepository
 {
     private $meetups = [];
 
