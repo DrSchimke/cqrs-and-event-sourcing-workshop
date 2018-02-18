@@ -83,6 +83,11 @@ final class Meetup
         return $this->title;
     }
 
+    public function dequeueEvent()
+    {
+        return array_shift($this->eventList);
+    }
+
     private function record($event)
     {
         $this->applyEvent($event);

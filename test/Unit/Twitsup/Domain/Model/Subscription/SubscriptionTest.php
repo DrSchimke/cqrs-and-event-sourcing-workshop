@@ -8,6 +8,7 @@ use Twitsup\Domain\Model\Subscription\Subscription;
 use Twitsup\Domain\Model\Subscription\SubscriptionId;
 use Twitsup\Domain\Model\Subscription\UserFollowed;
 use Twitsup\Domain\Model\Subscription\UserStartedFollowing;
+use Twitsup\Domain\Model\Subscription\UserUnfollowed;
 use Twitsup\Domain\Model\User\UserId;
 
 final class SubscriptionTest extends \PHPUnit_Framework_TestCase
@@ -32,7 +33,10 @@ final class SubscriptionTest extends \PHPUnit_Framework_TestCase
         $subscriptionId = $this->aSubscriptionId();
         $followerId = $this->aUserId();
         $followeeId = $this->anotherUserId();
+
         $subscription = Subscription::startFollowing($subscriptionId, $followerId, $followeeId);
+
+        $this->assertTrue($subscription->isFollowing());
 
         $this->assertEquals([
             new UserStartedFollowing($subscriptionId, $followerId, $followeeId)
@@ -44,14 +48,14 @@ final class SubscriptionTest extends \PHPUnit_Framework_TestCase
      */
     public function a_user_can_be_unfollowed()
     {
-        $this->markTestIncomplete('Unfollowing needs to be implemented');
-
         $subscriptionId = $this->aSubscriptionId();
         $followerId = $this->aUserId();
         $followeeId = $this->anotherUserId();
         $subscription = Subscription::startFollowing($subscriptionId, $followerId, $followeeId);
 
         $subscription->unfollow();
+
+        $this->assertFalse($subscription->isFollowing());
 
         $this->assertEquals([
             new UserStartedFollowing($subscriptionId, $followerId, $followeeId),
@@ -64,8 +68,6 @@ final class SubscriptionTest extends \PHPUnit_Framework_TestCase
      */
     public function a_user_can_be_followed_again()
     {
-        $this->markTestIncomplete('Unfollowing needs to be implemented');
-
         $subscriptionId = $this->aSubscriptionId();
         $followerId = $this->aUserId();
         $followeeId = $this->anotherUserId();
@@ -73,6 +75,8 @@ final class SubscriptionTest extends \PHPUnit_Framework_TestCase
 
         $subscription->unfollow();
         $subscription->follow();
+
+        $this->assertTrue($subscription->isFollowing());
 
         $this->assertEquals([
             new UserStartedFollowing($subscriptionId, $followerId, $followeeId),
