@@ -8,11 +8,9 @@
  * file that was distributed with this source code.
  */
 
-
 namespace MeetupManagement\Domain\Model;
 
-
-class MeetupScheduled
+class MeetupScheduled implements MeetupEvent
 {
 
     /**

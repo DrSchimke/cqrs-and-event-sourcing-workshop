@@ -8,11 +8,9 @@
  * file that was distributed with this source code.
  */
 
-
 namespace MeetupManagement\Domain\Model;
 
-
-class MeetupRescheduled
+class MeetupRescheduled implements MeetupEvent
 {
     /**
      * @var MeetupId
@@ -27,14 +25,6 @@ class MeetupRescheduled
     {
         $this->meetupId = $meetupId;
         $this->newDate = $newDate;
-    }
-
-    /**
-     * @return MeetupId
-     */
-    public function getMeetupId()
-    {
-        return $this->meetupId;
     }
 
     /**

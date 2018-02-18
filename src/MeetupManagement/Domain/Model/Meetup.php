@@ -3,48 +3,44 @@ declare(strict_types=1);
 
 namespace MeetupManagement\Domain\Model;
 
+use Assert\Assert;
+
 final class Meetup
 {
-    /**
-     * @var MeetupId
-     */
+    /** @var MeetupId */
     private $meetupId;
 
-    /**
-     * @var ScheduledDate
-     */
+    /** @var ScheduledDate */
     private $scheduledDate;
 
-    /**
-     * @var Title
-     */
+    /** @var Title */
     private $title;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $cancelled = false;
 
-
+    /** @var MeetupEvent[] */
     private $eventList = [];
 
     private function __construct()
     {
     }
 
-    public static function schedule(MeetupId $meetupId, ScheduledDate $scheduledDate, Title $title): Meetup
+    public static function reconstitute(array $events): Meetup
     {
+        Assert::thatAll($events)->isInstanceOf(MeetupEvent::class);
+
         $meetup = new static();
-        $meetup->record(new MeetupScheduled($meetupId, $scheduledDate, $title));
+
+        array_walk($events, [$meetup, 'applyEvent']);
 
         return $meetup;
     }
 
-    public static function reconstitute(array $events)
+    public static function schedule(MeetupId $meetupId, ScheduledDate $scheduledDate, Title $title): Meetup
     {
         $meetup = new static();
-
-        array_walk($events, [$meetup, 'applyEvent']);
+        $meetup->record(new MeetupScheduled($meetupId, $scheduledDate, $title));
 
         return $meetup;
     }
@@ -88,41 +84,38 @@ final class Meetup
         return array_shift($this->eventList);
     }
 
-    private function record($event)
+    private function record(MeetupEvent $event)
     {
         $this->applyEvent($event);
 
         $this->eventList[] = $event;
     }
 
-    private function meetupScheduled(MeetupScheduled $event)
+    private function applyEvent(MeetupEvent $event)
+    {
+        if ($event instanceof MeetupScheduled) {
+            $this->onMeetupScheduled($event);
+        } elseif ($event instanceof MeetupRescheduled) {
+            $this->onMeetupRescheduled($event);
+        } elseif ($event instanceof MeetupCancelled) {
+            $this->onMeetupCancelled($event);
+        }
+    }
+
+    private function onMeetupScheduled(MeetupScheduled $event)
     {
         $this->meetupId = $event->getMeetupId();
         $this->scheduledDate = $event->getScheduledDate();
         $this->title = $event->getTitle();
     }
 
-    private function meetupRescheduled(MeetupRescheduled $event)
+    private function onMeetupRescheduled(MeetupRescheduled $event)
     {
         $this->scheduledDate = $event->getNewDate();
     }
 
-    private function meetupCancelled(MeetupCancelled $event)
+    private function onMeetupCancelled(MeetupCancelled $event)
     {
         $this->cancelled = true;
-    }
-
-    /**
-     * @param $event
-     */
-    private function applyEvent($event)
-    {
-        if ($event instanceof MeetupScheduled) {
-            $this->meetupScheduled($event);
-        } elseif ($event instanceof MeetupRescheduled) {
-            $this->meetupRescheduled($event);
-        } elseif ($event instanceof MeetupCancelled) {
-            $this->meetupCancelled($event);
-        }
     }
 }
